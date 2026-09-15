@@ -1,0 +1,317 @@
+<?php
+/**
+ * Queue processor - the heart of the plugin.
+ *
+ * Runs every 5 minutes via Action Scheduler. Idempotent: each item is
+ * claimed with a conditional UPDATE to the 'processing' status, so two
+ * overlapping runs can never send the same mail twice.
+ *
+ * Per item: claim -> suppression check -> stop-condition check -> render
+ * template -> send via configured provider -> log. Failures retry up to
+ * 3 times with a 15-minute backoff.
+ *
+ * @package WS_Flow_Mailer
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+class WSFM_Queue_Processor {
+
+	const BATCH_SIZE    = 50;
+	const MAX_ATTEMPTS  = 3;
+	const RETRY_MINUTES = 15;
+
+	/**
+	 * Recurring Action Scheduler callback.
+	 */
+	public static function process() {
+		global $wpdb;
+
+		self::recover_stale_items();
+
+		$table = WSFM_Queue::table();
+		$now   = current_time( 'mysql' );
+
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE status = 'pending' AND scheduled_at <= %s ORDER BY scheduled_at ASC LIMIT %d", $now, self::BATCH_SIZE ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		foreach ( $ids as $id ) {
+			self::process_item( (int) $id );
+		}
+	}
+
+	/**
+	 * Items stuck in 'processing' (a run crashed mid-batch) go back to
+	 * pending after an hour so they are retried, with attempts counted.
+	 */
+	private static function recover_stale_items() {
+		global $wpdb;
+
+		$table = WSFM_Queue::table();
+		$limit = get_date_from_gmt( gmdate( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS ) );
+
+		$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET status = 'pending', attempts = attempts + 1 WHERE status = 'processing' AND scheduled_at < %s", $limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/**
+	 * Process one queue item. Public so a manual "verwerk nu" admin action
+	 * or a test can call it directly.
+	 *
+	 * @param int $queue_id Queue row id.
+	 * @return string Resulting status (sent|stopped|failed|pending|skipped).
+	 */
+	public static function process_item( $queue_id ) {
+		global $wpdb;
+
+		$table = WSFM_Queue::table();
+
+		// Claim: only one runner can flip pending to processing.
+		$claimed = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET status = 'processing' WHERE id = %d AND status = 'pending'", $queue_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( 1 !== $claimed ) {
+			return 'skipped';
+		}
+
+		$item = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $queue_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( ! $item ) {
+			return 'skipped';
+		}
+
+		/* Een nieuwsbrief hoort hier niet verder. Hij heeft geen flow en geen
+		   stap, dus de controle hieronder zou hem altijd afkeuren: geen flow,
+		   dus stoppen. Dat gebeurde ook, stilzwijgend, voor elke ontvanger. */
+		if ( (int) $item->newsletter_id > 0 ) {
+			return self::process_newsletter_item( $item );
+		}
+
+		// Flow or step no longer exists, or the flow is paused -> stop.
+		$flow = WSFM_Flows::get( $item->flow_id );
+		$step = ( $flow && isset( $flow->steps[ $item->step_index ] ) ) ? $flow->steps[ $item->step_index ] : null;
+
+		if ( ! $flow || ! $step || 'active' !== $flow->status ) {
+			return self::finish( $item, 'stopped', 0, __( 'De flow of de stap bestaat niet meer, of de flow staat uit.', 'ws-flow-mailer' ) );
+		}
+
+		// 1. Suppression list - the safety layer, always first.
+		if ( WSFM_Suppression::is_suppressed( $item->customer_email ) ) {
+			$reason = WSFM_Suppression::get_reason( $item->customer_email );
+			WSFM_Queue::log( $item, $step['template_id'], 'failed', '', '', sprintf( __( 'Niet verzonden: adres staat op de suppressielijst (%s).', 'ws-flow-mailer' ), $reason ? $reason : 'onbekend' ) );
+			return self::finish( $item, 'stopped' );
+		}
+
+		// 2. Stop condition (e.g. customer ordered after all).
+		if ( WSFM_Flow_Conditions::should_stop( $item, $flow, $step ) ) {
+			return self::finish(
+				$item,
+				'stopped',
+				(int) $step['template_id'],
+				__( 'Niet verstuurd omdat de voorwaarde van de flow niet meer gold, bijvoorbeeld doordat de klant alsnog besteld heeft.', 'ws-flow-mailer' )
+			);
+		}
+
+		// 3. Build merge context.
+		$context = self::build_context( $item, $flow );
+		if ( is_wp_error( $context ) ) {
+			// Source data is gone (order/cart deleted) - permanent stop.
+			WSFM_Queue::log( $item, $step['template_id'], 'failed', '', '', $context->get_error_message() );
+			return self::finish( $item, 'stopped' );
+		}
+
+		// 4. Render template.
+		$rendered = WSFM_Template_Engine::render( $step['template_id'], $context );
+		if ( is_wp_error( $rendered ) ) {
+			WSFM_Queue::log( $item, $step['template_id'], 'failed', '', '', $rendered->get_error_message() );
+			return self::finish( $item, 'stopped' );
+		}
+
+		/**
+		 * 4b. Mag deze mail eruit?
+		 *
+		 * Standaard ja; in WS Flow Mailer en in WSS Tools luistert hier niemand
+		 * naar. In de losse betaalde plugin hangt hier het tegoed aan. Zie de
+		 * uitleg bij hetzelfde filter in class-newsletters.php.
+		 *
+		 * Het kenmerk is het wachtrij-id: dat is uniek en blijft bij een tweede
+		 * poging hetzelfde, dus opnieuw proberen kost niet nog een keer geld.
+		 *
+		 * Mag het niet, dan stopt deze mail; hij blijft NIET in de wachtrij
+		 * hangen tot er weer tegoed is. Dat is met opzet: een herinnering voor
+		 * een winkelwagen van drie dagen geleden die alsnog uitgaat zodra er
+		 * bijgekocht wordt is erger dan een herinnering die niet kwam. De reden
+		 * komt in het log, zodat het terug te vinden is in plaats van stil weg.
+		 *
+		 * @param bool|WP_Error $mag     Of het mag.
+		 * @param array         $context { soort, aantal, ref }.
+		 */
+		$mag = apply_filters(
+			'wsfm_mag_versturen',
+			true,
+			array(
+				'soort'  => 'flow',
+				'aantal' => 1,
+				'ref'    => 'wachtrij-' . (int) $item->id,
+			)
+		);
+		if ( is_wp_error( $mag ) ) {
+			return self::finish( $item, 'stopped', (int) $step['template_id'], $mag->get_error_message() );
+		}
+
+		// 5. Send.
+		$provider = WSFM_Provider_Factory::create();
+		if ( is_wp_error( $provider ) ) {
+			return self::handle_failure( $item, (int) $step['template_id'], $provider->get_error_message() );
+		}
+
+		$result = $provider->send( $item->customer_email, $rendered['subject'], $rendered['html_body'], $context );
+
+		// 6/7. Success or retry.
+		if ( $result->success ) {
+			WSFM_Queue::log( $item, $step['template_id'], 'sent', $rendered['subject'], $result->message_id );
+			return self::finish( $item, 'sent' );
+		}
+
+		return self::handle_failure( $item, (int) $step['template_id'], $result->error, $rendered['subject'] );
+	}
+
+	/**
+	 * One newsletter recipient.
+	 *
+	 * Same shape as a flow item minus the parts a newsletter does not have: no
+	 * step, no stop condition (there is no order to wait for), no source data
+	 * that can disappear. What stays is the suppression check, because that one
+	 * is never optional.
+	 *
+	 * Er wordt hier bewust NIET nog eens om toestemming gevraagd. Voor een
+	 * nieuwsbrief is er al afgerekend op het moment dat hij in de wachtrij ging,
+	 * voor alle ontvangers tegelijk; hier nog een keer zou dubbel betalen zijn.
+	 *
+	 * The whole letter is rebuilt per recipient. That is more work than caching
+	 * the HTML once, but a product that sold out or a price that changed halfway
+	 * through a send should be right in the mail that goes out now.
+	 *
+	 * @param object $item Queue row.
+	 * @return string
+	 */
+	private static function process_newsletter_item( $item ) {
+		$brief = WSFM_Newsletters::get( (int) $item->newsletter_id );
+
+		if ( ! $brief ) {
+			return self::finish( $item, 'stopped', 0, __( 'Deze nieuwsbrief bestaat niet meer; hij is weggegooid terwijl hij nog verstuurd werd.', 'ws-flow-mailer' ) );
+		}
+
+		if ( WSFM_Suppression::is_suppressed( $item->customer_email ) ) {
+			$reason = WSFM_Suppression::get_reason( $item->customer_email );
+			WSFM_Queue::log( $item, 0, 'failed', '', '', sprintf( __( 'Niet verzonden: adres staat op de suppressielijst (%s).', 'ws-flow-mailer' ), $reason ? $reason : 'onbekend' ) );
+			return self::finish( $item, 'stopped' );
+		}
+
+		$voornaam = $item->customer_name ? preg_split( '/\s+/', trim( $item->customer_name ) )[0] : '';
+		$context  = array(
+			'first_name'      => $voornaam,
+			'unsubscribe_url' => WSFM_Unsubscribe::url( $item->customer_email ),
+		);
+
+		$rendered = WSFM_Newsletters::render( $brief, $context );
+
+		$provider = WSFM_Provider_Factory::create();
+		if ( is_wp_error( $provider ) ) {
+			return self::handle_failure( $item, 0, $provider->get_error_message() );
+		}
+
+		$result = $provider->send( $item->customer_email, $rendered['subject'], $rendered['html_body'], $context );
+
+		if ( $result->success ) {
+			WSFM_Queue::log( $item, 0, 'sent', $rendered['subject'], $result->message_id );
+			return self::finish( $item, 'sent' );
+		}
+
+		return self::handle_failure( $item, 0, $result->error, $rendered['subject'] );
+	}
+
+	/**
+	 * Retry with backoff, or fail permanently after MAX_ATTEMPTS.
+	 *
+	 * @param object $item        Queue row.
+	 * @param int    $template_id Sjabloon, of 0 bij een nieuwsbrief.
+	 * @param string $error       Error message.
+	 * @param string $subject     Rendered subject (when available).
+	 * @return string
+	 */
+	private static function handle_failure( $item, $template_id, $error, $subject = '' ) {
+		global $wpdb;
+
+		$table    = WSFM_Queue::table();
+		$attempts = (int) $item->attempts + 1;
+
+		if ( $attempts < self::MAX_ATTEMPTS ) {
+			$retry_at = get_date_from_gmt( gmdate( 'Y-m-d H:i:s', time() + self::RETRY_MINUTES * MINUTE_IN_SECONDS ) );
+			$wpdb->update(
+				$table,
+				array(
+					'status'       => 'pending',
+					'attempts'     => $attempts,
+					'scheduled_at' => $retry_at,
+				),
+				array( 'id' => $item->id )
+			);
+			return 'pending';
+		}
+
+		$wpdb->update( $table, array( 'status' => 'failed', 'attempts' => $attempts ), array( 'id' => $item->id ) );
+		WSFM_Queue::log( $item, (int) $template_id, 'failed', $subject, '', $error );
+		return 'failed';
+	}
+
+	/**
+	 * Set the final status of a claimed item.
+	 *
+	 * WAAROM HIER OOK EEN REGEL IN HET LOG KAN
+	 * Een item dat stopt schreef vroeger niets weg. Die stilte is precies wat
+	 * een verdwenen mail onvindbaar maakte: het item stond op 'stopped', het
+	 * log was leeg, en het scherm telde nul verzonden en nul mislukt. Wie dan
+	 * vraagt waar zijn post is heeft geen enkel aanknopingspunt. Een reden
+	 * meegeven is dus geen extra, het is het verschil tussen zoeken en zien.
+	 *
+	 * @param object $item        Queue row.
+	 * @param string $status      Final status.
+	 * @param int    $template_id Sjabloon, of 0 bij een nieuwsbrief.
+	 * @param string $reden       Waarom, als het geen gewone verzending is.
+	 * @return string
+	 */
+	private static function finish( $item, $status, $template_id = 0, $reden = '' ) {
+		global $wpdb;
+
+		$wpdb->update( WSFM_Queue::table(), array( 'status' => $status ), array( 'id' => $item->id ) );
+
+		if ( '' !== $reden ) {
+			WSFM_Queue::log( $item, (int) $template_id, 'stopped', '', '', $reden );
+		}
+
+		return $status;
+	}
+
+	/**
+	 * Build the merge context for a queue item from its source data.
+	 *
+	 * @param object $item Queue row.
+	 * @param object $flow Flow row.
+	 * @return array|WP_Error
+	 */
+	private static function build_context( $item, $flow ) {
+		$unsubscribe_url = WSFM_Unsubscribe::url( $item->customer_email );
+
+		if ( 'order_completed' === $flow->trigger_type ) {
+			$order = $item->order_id ? wc_get_order( $item->order_id ) : false;
+			if ( ! $order ) {
+				return new WP_Error( 'wsfm_order_gone', sprintf( __( 'Order %d bestaat niet meer.', 'ws-flow-mailer' ), $item->order_id ) );
+			}
+			return WSFM_Template_Engine::build_order_context( $order, $unsubscribe_url );
+		}
+
+		// Abandoned cart: look up the tracking row (by hash, then e-mail).
+		$tracking = WSFM_Cart_Tracking::get_by_hash_or_email( $item->cart_hash, $item->customer_email );
+		if ( ! $tracking ) {
+			return new WP_Error( 'wsfm_cart_gone', __( 'De winkelwagen-data van dit queue-item is niet meer beschikbaar.', 'ws-flow-mailer' ) );
+		}
+
+		return WSFM_Template_Engine::build_cart_context( $tracking, $unsubscribe_url );
+	}
+}

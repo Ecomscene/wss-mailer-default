@@ -1,0 +1,1168 @@
+/* WS Flow Mailer admin styles */
+
+/* --- Settings --- */
+
+.wsfm-settings .wsfm-provider-fields {
+	margin-top: 1em;
+}
+
+.wsfm-settings #wsfm-test-connection {
+	margin-left: 8px;
+	vertical-align: middle;
+}
+
+#wsfm-test-result,
+#wsfm-template-result {
+	display: inline-block;
+	margin-left: 12px;
+	font-weight: 600;
+	vertical-align: middle;
+}
+
+.wsfm-test-pending {
+	color: #646970;
+}
+
+.wsfm-test-success {
+	color: #00a32a;
+}
+
+.wsfm-test-error {
+	color: #d63638;
+}
+
+.wsfm-sns-help {
+	max-width: 720px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 12px 16px;
+	margin: 12px 0;
+}
+
+.wsfm-sns-help summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.wsfm-sns-help ol {
+	margin: 12px 0 4px 20px;
+}
+
+.wsfm-sns-help li {
+	margin-bottom: 8px;
+}
+
+/* --- Dashboard cards --- */
+
+.wsfm-cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin: 16px 0 24px;
+}
+
+.wsfm-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 16px 24px;
+	min-width: 160px;
+}
+
+.wsfm-card-warn {
+	border-left: 4px solid #d63638;
+}
+
+.wsfm-card-number {
+	display: block;
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: #1d2327;
+}
+
+.wsfm-card-label {
+	color: #646970;
+}
+
+/* --- Badges --- */
+
+.wsfm-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: #dcdcde;
+	color: #3c434a;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+.wsfm-badge-active {
+	background: #d5e8d4;
+	color: #00681c;
+}
+
+.wsfm-badge-error {
+	background: #f8d7da;
+	color: #a02222;
+}
+
+/* --- Flow status toggle --- */
+
+.wsfm-toggle {
+	position: relative;
+	width: 40px;
+	height: 22px;
+	border: none;
+	border-radius: 11px;
+	background: #c3c4c7;
+	cursor: pointer;
+	vertical-align: middle;
+	transition: background 0.15s ease;
+	padding: 0;
+}
+
+.wsfm-toggle-on {
+	background: #00a32a;
+}
+
+.wsfm-toggle-knob {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #fff;
+	transition: left 0.15s ease;
+}
+
+.wsfm-toggle-on .wsfm-toggle-knob {
+	left: 20px;
+}
+
+.wsfm-toggle-label {
+	margin-left: 8px;
+	vertical-align: middle;
+}
+
+/* --- Flow steps builder --- */
+
+.wsfm-step {
+	margin-bottom: 8px;
+}
+
+.wsfm-step-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+}
+
+.wsfm-step-number {
+	font-weight: 600;
+	min-width: 56px;
+	color: #1d2327;
+}
+
+.wsfm-step-stop {
+	color: #646970;
+}
+
+.wsfm-step .wsfm-remove-step {
+	margin-left: auto;
+}
+
+/* --- Template editor cheatsheet --- */
+
+.wsfm-tag-list {
+	margin: 0;
+}
+
+.wsfm-tag-list li {
+	margin-bottom: 8px;
+}
+
+.wsfm-tag-list .wsfm-insert-tag {
+	font-family: Consolas, Monaco, monospace;
+	margin-right: 6px;
+}
+
+.wsfm-tag-list .description {
+	display: block;
+	margin-top: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Nieuwsbrieven
+   ------------------------------------------------------------------------ */
+
+.wsfm-leeg {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 32px;
+	max-width: 640px;
+	margin-top: 20px;
+}
+
+.wsfm-leeg h2 {
+	margin-top: 0;
+}
+
+.wsfm-brief-kolommen {
+	display: flex;
+	gap: 20px;
+	align-items: flex-start;
+	margin-top: 16px;
+}
+
+.wsfm-brief-links {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wsfm-brief-rechts {
+	/* Breder dan een gewone zijbalk, want hier staat het voorbeeld in. Een mail
+	   is 600 pixels breed; in 300 pixels is dat geen voorbeeld meer maar een
+	   postzegel. */
+	flex: 0 0 440px;
+	position: sticky;
+	top: 46px;
+}
+
+@media screen and (max-width: 1100px) {
+	.wsfm-brief-kolommen {
+		display: block;
+	}
+
+	.wsfm-brief-rechts {
+		position: static;
+	}
+}
+
+/* De drie sjablonen, met een miniatuur dat het verschil laat zien. */
+.wsfm-sjablonen {
+	display: flex;
+	gap: 14px;
+	flex-wrap: wrap;
+}
+
+.wsfm-sjabloon {
+	flex: 1 1 160px;
+	border: 2px solid #dcdcde;
+	border-radius: 6px;
+	padding: 12px;
+	cursor: pointer;
+	display: block;
+	background: #fff;
+}
+
+.wsfm-sjabloon.is-gekozen,
+.wsfm-sjabloon:has( input:checked ) {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.wsfm-sjabloon input {
+	margin-bottom: 8px;
+}
+
+.wsfm-sjabloon-naam {
+	display: block;
+	font-weight: 600;
+	margin-top: 8px;
+}
+
+.wsfm-sjabloon-kort {
+	display: block;
+	color: #666;
+	font-size: 12px;
+	line-height: 1.5;
+	margin-top: 2px;
+}
+
+.wsfm-sjabloon-beeld {
+	display: block;
+	border: 1px solid #e6e6e6;
+	padding: 10px;
+	background: #fff;
+}
+
+.wsfm-sjabloon-beeld > span {
+	display: block;
+}
+
+.wsfm-mini-kop {
+	height: 8px;
+	width: 40%;
+	margin: 0 auto 8px;
+	background: #c9c9c9;
+}
+
+.wsfm-mini-beeld {
+	height: 34px;
+	background: #e2e2e2;
+	margin-bottom: 8px;
+}
+
+.wsfm-mini-regel {
+	height: 4px;
+	background: #dcdcde;
+	margin-bottom: 4px;
+}
+
+.wsfm-mini-kort {
+	width: 60%;
+}
+
+.wsfm-mini-raster {
+	display: flex;
+	gap: 4px;
+	margin-top: 8px;
+}
+
+.wsfm-mini-raster span {
+	flex: 1;
+	height: 22px;
+	background: #e2e2e2;
+}
+
+.wsfm-sjabloon-warm .wsfm-sjabloon-beeld,
+.wsfm-sjabloon-beeld.wsfm-sjabloon-warm {
+	background: #f6f1ea;
+}
+
+.wsfm-sjabloon-warm .wsfm-mini-beeld,
+.wsfm-sjabloon-warm .wsfm-mini-raster span {
+	border-radius: 6px;
+}
+
+/* Strak: drie in plaats van twee, en beeld tot de rand. */
+.wsfm-sjabloon-strak {
+	padding: 0;
+}
+
+.wsfm-sjabloon-strak .wsfm-mini-kop,
+.wsfm-sjabloon-strak .wsfm-mini-regel,
+.wsfm-sjabloon-strak .wsfm-mini-raster {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.wsfm-sjabloon-strak .wsfm-mini-kop {
+	margin-top: 10px;
+}
+
+.wsfm-sjabloon-strak .wsfm-mini-raster {
+	margin-bottom: 10px;
+}
+
+/* De blokken. */
+.wsfm-blok {
+	border: 1px solid #dcdcde;
+	border-left: 4px solid #2271b1;
+	border-radius: 4px;
+	background: #fdfdfd;
+	padding: 12px 16px;
+	margin-bottom: 12px;
+}
+
+.wsfm-blok[data-soort="afbeelding"] {
+	border-left-color: #8c68cd;
+}
+
+.wsfm-blok[data-soort="producten"] {
+	border-left-color: #00a32a;
+}
+
+.wsfm-blok-kop {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.wsfm-blok-naam {
+	font-weight: 600;
+	text-transform: uppercase;
+	font-size: 11px;
+	letter-spacing: .5px;
+	color: #50575e;
+}
+
+.wsfm-blok-knoppen .button-link {
+	margin-left: 10px;
+	text-decoration: none;
+}
+
+.wsfm-blok-knoppen .wsfm-weg {
+	color: #b32d2e;
+}
+
+.wsfm-beeld-voor img {
+	max-width: 260px;
+	height: auto;
+	display: block;
+	margin-bottom: 8px;
+	border: 1px solid #dcdcde;
+}
+
+.wsfm-knopveld label {
+	display: inline-block;
+	margin-right: 16px;
+}
+
+.wsfm-toevoegen {
+	margin-top: 4px;
+}
+
+.wsfm-toevoegen .button {
+	margin-right: 6px;
+}
+
+.wsfm-aantal {
+	font-size: 18px;
+	font-weight: 600;
+	margin: 4px 0 8px;
+}
+
+.wsfm-verstuurvak {
+	max-width: 640px;
+}
+
+.wsfm-verstuurvak h2 {
+	margin-top: 0;
+}
+
+.wsfm-weggooi {
+	margin: 16px 0 32px;
+}
+
+.wsfm-weggooi-knop {
+	color: #b32d2e;
+}
+
+.wsfm-melding {
+	min-height: 1em;
+	margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Popup, beheerscherm
+   ------------------------------------------------------------------------ */
+
+.wsfm-popup-uitleg {
+	max-width: 700px;
+	font-size: 14px;
+}
+
+.wsfm-popup-kolommen {
+	display: flex;
+	gap: 20px;
+	align-items: flex-start;
+	margin-top: 16px;
+}
+
+.wsfm-popup-links {
+	flex: 1 1 520px;
+	min-width: 0;
+	max-width: 720px;
+}
+
+.wsfm-popup-rechts {
+	flex: 1 1 460px;
+	min-width: 0;
+	position: sticky;
+	top: 46px;
+}
+
+@media screen and (max-width: 1300px) {
+	.wsfm-popup-kolommen {
+		display: block;
+	}
+
+	.wsfm-popup-rechts {
+		position: static;
+	}
+}
+
+.wsfm-popup-beheer .postbox h2.hndle {
+	padding: 10px 14px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.wsfm-tweeling {
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.wsfm-tweeling > label {
+	flex: 1 1 200px;
+	min-width: 0;
+}
+
+.wsfm-tweeling input[type="text"],
+.wsfm-tweeling input[type="number"],
+.wsfm-tweeling select {
+	width: 100%;
+}
+
+.wsfm-kleuren {
+	display: flex;
+	gap: 18px;
+	flex-wrap: wrap;
+}
+
+.wsfm-kleuren label {
+	font-size: 12px;
+	color: #50575e;
+}
+
+.wsfm-kleuren input[type="color"] {
+	width: 64px;
+	height: 34px;
+	padding: 2px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.wsfm-aanknop {
+	font-size: 15px;
+}
+
+/**
+ * Het voorbeeld.
+ *
+ * De popup staat vast aan het scherm (position:fixed), en dat kan hier niet:
+ * hij moet in een kadertje blijven. Vandaar de omzetting naar absolute binnen
+ * een vak met een eigen containment. De rest van de opmaak blijft die van de
+ * winkel, zodat de kleuren en de verhoudingen echt kloppen.
+ */
+.wsfm-voorbeeldvak {
+	position: relative;
+	height: 520px;
+	overflow: hidden;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #f0f0f1;
+	transform: scale( 1 );
+}
+
+.wsfm-voorbeeldvak .wsfm-popup-laag {
+	position: absolute;
+	padding: 16px;
+}
+
+.wsfm-voorbeeldvak[data-breed="mobiel"] {
+	max-width: 390px;
+	margin: 0 auto;
+}
+
+/* De echte breekpunt-regel werkt hier niet: die kijkt naar het scherm en niet
+   naar dit vakje. Dus dezelfde regels nog een keer, aan een attribuut gehangen. */
+.wsfm-voorbeeldvak[data-breed="mobiel"] .wsfm-popup-beeld {
+	display: none;
+}
+
+.wsfm-voorbeeldvak[data-breed="mobiel"] .wsfm-popup-tekst {
+	flex: 1 1 100%;
+	padding: 32px 22px;
+}
+
+.wsfm-voorbeeldvak[data-breed="mobiel"] .wsfm-popup h2 {
+	font-size: 32px;
+}
+
+.wsfm-voorbeeldvak .wsfm-popup {
+	max-height: 100%;
+}
+
+.wsfm-voorbeeldvak .wsfm-popup-tekst {
+	padding: 32px 28px;
+}
+
+.wsfm-voorbeeldvak .wsfm-popup h2 {
+	font-size: 34px;
+}
+
+.wsfm-breedtes .button.is-actief {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+}
+
+.wsfm-inschrijvingen {
+	margin-top: 12px;
+}
+
+.wsfm-inschrijvingen td {
+	font-size: 12px;
+	padding: 6px 8px;
+}
+
+/* De kleuren van de mail met de kortingscode. Verborgen zolang het vinkje uit
+   staat: vier kleurvakjes die niets doen zijn vier vragen waar de winkelier
+   over gaat nadenken. */
+.wsfm-mail-kleuren {
+	display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Inschrijvingen en lijsten
+
+   Alles binnen de vormtaal van wp-admin: dezelfde randen, dezelfde grijzen,
+   dezelfde knoppen. Dit scherm hoort er niet uit te springen maar wel prettiger
+   te werken dan een kale tabel. Wat hier gebeurt is dus vooral RUIMTE en
+   VOLGORDE, en bijna geen kleur.
+   ------------------------------------------------------------------------ */
+
+.wsfm-vak {
+	max-width: 1100px;
+	margin-bottom: 20px;
+}
+
+.wsfm-vak .inside {
+	padding: 4px 16px 16px;
+}
+
+.wsfm-vak-kop {
+	font-size: 15px;
+	margin: 12px 0 4px;
+}
+
+.wsfm-vak-uitleg {
+	max-width: 680px;
+	color: #646970;
+	margin: 0 0 14px;
+}
+
+.wsfm-mut {
+	color: #646970;
+	font-size: 12px;
+}
+
+.wsfm-smal {
+	max-width: 680px;
+}
+
+/* Een rij velden die als één handeling leest: label boven het veld, alles op
+   een regel, en de knop erachter. Dat is de vorm die "vul dit in en druk op de
+   knop" het duidelijkst maakt zonder een formulier van een halve pagina. */
+.wsfm-rij-form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 10px;
+	margin: 14px 0 0;
+	padding-top: 14px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.wsfm-rij-form label {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.wsfm-rij-form label span {
+	font-size: 12px;
+	color: #646970;
+}
+
+.wsfm-rij-form input[type="text"],
+.wsfm-rij-form input[type="email"],
+.wsfm-rij-form select {
+	min-width: 160px;
+	margin: 0;
+}
+
+.wsfm-rij-form .wsfm-breed input {
+	min-width: 260px;
+}
+
+/* Formulieren die alleen een knop bevatten mogen geen regel innemen, anders
+   staat elke tabelrij ineens twee regels hoog. */
+.wsfm-inline {
+	display: inline;
+	margin: 0;
+}
+
+/* --- de lijstentabel --- */
+
+.wsfm-lijstentabel {
+	margin-top: 4px;
+}
+
+.wsfm-lijstnaam {
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.wsfm-lijstentabel .wsfm-rij-actief {
+	box-shadow: inset 3px 0 0 #2271b1;
+}
+
+.wsfm-lijstentabel .wsfm-rij-actief .wsfm-lijstnaam {
+	color: #1d2327;
+}
+
+/* Het merkje achter de hoofdlijst. Rustig, want het is een feit en geen
+   waarschuwing: dit is gewoon de lijst waar nieuwe aanmeldingen heen gaan. */
+.wsfm-hoofdlijst {
+	display: inline-block;
+	margin-left: 6px;
+	padding: 1px 7px;
+	border-radius: 10px;
+	background: #f0f6fc;
+	color: #2271b1;
+	font-size: 11px;
+	font-weight: 600;
+	vertical-align: middle;
+}
+
+.wsfm-kol-getal {
+	width: 90px;
+}
+
+.wsfm-kol-acties {
+	width: 190px;
+	text-align: right;
+	white-space: nowrap;
+}
+
+.wsfm-kol-bron {
+	width: 150px;
+}
+
+.wsfm-kol-datum {
+	width: 110px;
+}
+
+.wsfm-kol-adres {
+	word-break: break-all;
+}
+
+.wsfm-weghalen {
+	color: #b32d2e;
+}
+
+/* --- uitklappers ---
+   Hernoemen en lidmaatschap zitten achter een <details>. Twee tekstvelden per
+   rij die altijd openstaan maken van een overzicht een formulier, en dan zie je
+   niet meer wat er staat. Native details, dus geen JavaScript dat kan uitvallen. */
+
+.wsfm-hernoem,
+.wsfm-lidbeheer {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.wsfm-hernoem summary,
+.wsfm-lidbeheer summary,
+.wsfm-uitklap summary {
+	cursor: pointer;
+	color: #2271b1;
+	font-size: 12px;
+	list-style: none;
+}
+
+.wsfm-hernoem summary::-webkit-details-marker,
+.wsfm-lidbeheer summary::-webkit-details-marker,
+.wsfm-uitklap summary::-webkit-details-marker {
+	display: none;
+}
+
+.wsfm-hernoem summary::before,
+.wsfm-lidbeheer summary::before,
+.wsfm-uitklap summary::before {
+	content: "\25B8";
+	margin-right: 4px;
+	font-size: 10px;
+}
+
+.wsfm-hernoem[open] summary::before,
+.wsfm-lidbeheer[open] summary::before,
+.wsfm-uitklap[open] summary::before {
+	content: "\25BE";
+}
+
+.wsfm-hernoem form,
+.wsfm-lidbeheer form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 8px;
+	text-align: left;
+}
+
+.wsfm-hernoem input[type="text"] {
+	max-width: 150px;
+}
+
+.wsfm-uitklap {
+	margin-top: 18px;
+	padding-top: 14px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.wsfm-uitklap summary {
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.wsfm-importvorm {
+	max-width: 720px;
+	margin-top: 12px;
+}
+
+.wsfm-toestemming {
+	background: #f6f7f7;
+	border-left: 4px solid #dba617;
+	padding: 10px 12px;
+	margin: 16px 0;
+}
+
+/* --- de adressen --- */
+
+.wsfm-sectiekop {
+	margin: 26px 0 0;
+	font-size: 16px;
+}
+
+.wsfm-balk {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	margin: 8px 0 10px;
+}
+
+.wsfm-telling {
+	margin: 0 auto 0 0;
+	color: #646970;
+}
+
+.wsfm-telling strong {
+	font-size: 17px;
+	color: #1d2327;
+}
+
+.wsfm-filter-weg {
+	margin-left: 8px;
+	font-size: 12px;
+}
+
+.wsfm-zoekvak {
+	margin: 0;
+	display: flex;
+	gap: 6px;
+}
+
+.wsfm-zoekvak input[type="search"] {
+	min-width: 220px;
+	margin: 0;
+}
+
+.wsfm-niets {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 24px;
+	color: #646970;
+	max-width: 1100px;
+}
+
+.wsfm-adrestabel {
+	max-width: 1100px;
+}
+
+/* De lijsten waar iemand op staat, als merkjes. Rustiger dan komma's, en je
+   ziet in een oogopslag of iemand op meer dan een lijst staat. */
+.wsfm-merkje {
+	display: inline-block;
+	margin: 0 4px 2px 0;
+	padding: 1px 7px;
+	border-radius: 10px;
+	background: #f0f0f1;
+	color: #3c434a;
+	font-size: 11px;
+}
+
+.wsfm-lidbeheer {
+	margin-left: 2px;
+}
+
+.wsfm-afrekenvak {
+	margin-top: 26px;
+}
+
+/* ---------------------------------------------------------------------------
+   Het voorbeeld naast de samensteller
+
+   WAAROM DIT GEEN KNOP MEER IS
+   Het voorbeeld zat in een popupvenster achter een knop. Dat betekende: typen,
+   klikken, kijken, venster sluiten, weer typen. Niemand doet dat vaker dan twee
+   keer, en dus werd er verstuurd zonder te kijken. Nu staat het ernaast en
+   beweegt het mee terwijl je typt.
+
+   WAAROM EEN IFRAME EN GEEN NAGEBOUWD VOORBEELD
+   Het is dezelfde HTML die de ontvanger krijgt, opgehaald bij dezelfde
+   renderfunctie die ook echt verstuurt. Een nagemaakt voorbeeld groeit uit de
+   pas met het echte werk, en dan lieg je juist op het moment dat iemand
+   controleert.
+
+   EIGEN NAMEN, GEEN HERGEBRUIK
+   De popup-pagina heeft al een .wsfm-voorbeeldvak met een eigen betekenis.
+   Dezelfde naam voor iets anders is hoe je een scherm sloopt dat je niet aan
+   het bewerken bent.
+   ------------------------------------------------------------------------ */
+
+.wsfm-briefvoorbeeld-vak .inside {
+	padding: 10px 12px 8px;
+}
+
+.wsfm-briefvoorbeeld-balk {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.wsfm-briefvoorbeeld-balk .wsfm-breedtes {
+	margin-left: auto;
+	white-space: nowrap;
+}
+
+.wsfm-briefvoorbeeld-stand {
+	color: #646970;
+	font-size: 12px;
+}
+
+/* De hoogte staat vast en de inhoud wordt geschaald ingepast. Een vak dat
+   meegroeit met de nieuwsbrief zou bij een lange brief de hele pagina
+   uitrekken, en dan is de zijbalk zijn plek kwijt. */
+.wsfm-briefvoorbeeld {
+	position: relative;
+	overflow: hidden;
+	height: 520px;
+	border: 1px solid #dcdcde;
+	background: #f6f7f7;
+}
+
+.wsfm-briefvoorbeeld iframe {
+	display: block;
+	border: 0;
+	background: #fff;
+	transform-origin: top left;
+}
+
+.wsfm-briefvoorbeeld[data-breed="mobiel"] iframe {
+	box-shadow: 0 0 0 1px #dcdcde;
+}
+
+.wsfm-briefvoorbeeld-voet {
+	margin: 8px 0 0;
+}
+
+.wsfm-briefvoorbeeld-voet .button-link {
+	margin-left: 4px;
+}
+
+/* Op een smal scherm valt de kolom onder de samensteller; dan mag het voorbeeld
+   wat hoger zijn, want de breedte is er dan wel. */
+@media screen and (max-width: 1100px) {
+	.wsfm-briefvoorbeeld {
+		height: 640px;
+	}
+}
+
+/* De twee manieren om een nieuwsbrief te maken. Dezelfde kaartvorm als de
+   sjablonen hierboven, want het is dezelfde soort keuze. */
+.wsfm-soorten {
+	display: flex;
+	gap: 14px;
+	flex-wrap: wrap;
+}
+
+.wsfm-soort {
+	flex: 1 1 220px;
+	border: 2px solid #dcdcde;
+	border-radius: 6px;
+	padding: 12px 14px;
+	cursor: pointer;
+	display: block;
+	background: #fff;
+}
+
+.wsfm-soort.is-gekozen,
+.wsfm-soort:has( input:checked ) {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.wsfm-soort-titel {
+	display: inline-block;
+	font-weight: 600;
+	margin-left: 4px;
+}
+
+.wsfm-soort-kort {
+	display: block;
+	color: #666;
+	font-size: 12px;
+	line-height: 1.5;
+	margin-top: 4px;
+}
+
+/* Het aanleveren van eigen HTML. */
+.wsfm-html-kiezen {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+/* Het echte bestandsveld is in elke browser anders lelijk; het label ernaast
+   is de knop die je ziet. Verbergen met display:none zou hem ook voor een
+   schermlezer weghalen, dus hij staat er wel, alleen niet in beeld. */
+#wsfm-html-bestand {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect( 0 0 0 0 );
+	white-space: nowrap;
+}
+
+#wsfm-html-bestand:focus + .description {
+	outline: 1px dotted #2271b1;
+}
+
+#wsfm-html {
+	font-family: Consolas, Monaco, monospace;
+	font-size: 12px;
+	line-height: 1.5;
+	white-space: pre;
+	overflow-wrap: normal;
+	overflow-x: auto;
+}
+
+.wsfm-html-controle:not( :empty ) {
+	margin-top: 10px;
+}
+
+.wsfm-html-punt {
+	margin: 0 0 6px;
+	padding: 8px 12px;
+	border-left: 4px solid #dba617;
+	background: #fcf9e8;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.wsfm-html-punt.is-fout {
+	border-left-color: #d63638;
+	background: #fcf0f1;
+}
+
+/* De doorlichting boven het postlog. De schakels staan in de volgorde van de
+   keten zelf, dus de eerste rode regel is waar je moet zijn. */
+.wsfm-doorlichting .inside {
+	padding-bottom: 4px;
+}
+
+.wsfm-schakel {
+	position: relative;
+	padding: 8px 12px 8px 30px;
+	margin-bottom: 8px;
+	border-left: 4px solid #00a32a;
+	background: #f2f8f3;
+}
+
+.wsfm-schakel::before {
+	position: absolute;
+	left: 10px;
+	top: 8px;
+	font-weight: 700;
+	color: #00a32a;
+	content: "\2713";
+}
+
+.wsfm-schakel.is-fout {
+	border-left-color: #d63638;
+	background: #fcf0f1;
+}
+
+.wsfm-schakel.is-fout::before {
+	color: #d63638;
+	content: "\2717";
+}
+
+.wsfm-schakel.is-let-op {
+	border-left-color: #dba617;
+	background: #fcf9e8;
+}
+
+.wsfm-schakel.is-let-op::before {
+	color: #dba617;
+	content: "!";
+}
+
+.wsfm-schakel-kop {
+	display: block;
+	font-weight: 600;
+}
+
+.wsfm-schakel-uitleg {
+	display: block;
+	color: #50575e;
+	font-size: 13px;
+	line-height: 1.5;
+	margin-top: 2px;
+}
+
+/* Het log zelf. */
+.wsfm-postlog-zoek {
+	margin: 6px 0 10px;
+}
+
+.wsfm-postlog-fout {
+	color: #b32d2e;
+	font-size: 12px;
+	line-height: 1.5;
+	margin-top: 3px;
+}
+
+.wsfm-stand {
+	display: inline-block;
+	padding: 1px 8px;
+	border-radius: 10px;
+	background: #f0f0f1;
+	color: #3c434a;
+	font-size: 11px;
+	white-space: nowrap;
+}
+
+.wsfm-stand-sent {
+	background: #edfaef;
+	color: #00652b;
+}
+
+.wsfm-stand-failed,
+.wsfm-stand-bounced,
+.wsfm-stand-complained {
+	background: #fcf0f1;
+	color: #b32d2e;
+}
+
+.wsfm-stand-stopped {
+	background: #fcf9e8;
+	color: #8a6d1c;
+}
