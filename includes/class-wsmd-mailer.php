@@ -58,7 +58,7 @@ class WSMD_Mailer {
 			'class-eigen-html', 'class-newsletter-render', 'class-newsletters',
 			'class-subscribers', 'class-lijsten', 'class-popup', 'class-afrekenen',
 			'class-flows', 'class-flow-conditions', 'class-queue', 'class-queue-processor',
-			'class-cart-tracking', 'class-flow-engine',
+			'class-cart-tracking', 'class-cart-recovery', 'class-flow-engine',
 			'class-unsubscribe', 'class-sns-webhook', 'class-identity',
 			'class-admin-settings', 'class-flow-admin-ui',
 		) as $bestand ) {
