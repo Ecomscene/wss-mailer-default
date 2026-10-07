@@ -59,8 +59,9 @@ class WSMD_Mailer {
 			'class-subscribers', 'class-lijsten', 'class-popup', 'class-afrekenen',
 			'class-flows', 'class-flow-conditions', 'class-queue', 'class-queue-processor',
 			'class-cart-tracking', 'class-cart-recovery', 'class-flow-engine',
+			'class-voorraadmail',
 			'class-unsubscribe', 'class-sns-webhook', 'class-identity',
-			'class-admin-settings', 'class-flow-admin-ui',
+			'class-admin-settings', 'class-flow-admin-ui', 'class-voorraad-admin',
 		) as $bestand ) {
 			require_once $map . $bestand . '.php';
 		}
@@ -71,6 +72,7 @@ class WSMD_Mailer {
 		WSFM_Install::maybe_upgrade();
 
 		WSFM_Flow_Engine::init();
+		WSFM_Voorraadmail::init();
 		WSFM_Unsubscribe::init();
 		WSFM_SNS_Webhook::init();
 		WSFM_Identity::init();
@@ -80,6 +82,7 @@ class WSMD_Mailer {
 		if ( is_admin() ) {
 			new WSFM_Flow_Admin_UI();
 			new WSFM_Admin_Settings();
+			new WSFM_Voorraad_Admin();
 		}
 
 		self::$aan = true;
